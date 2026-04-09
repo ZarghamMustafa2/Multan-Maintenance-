@@ -19,45 +19,48 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Form Submission Logic (AJAX with Formspree)
+    // Form Submission Logic (WhatsApp Redirect)
     const bookingForm = document.getElementById('booking-form');
     const successMsg = document.getElementById('success-message');
-    const formContainer = bookingForm.parentElement;
 
-    bookingForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const formData = new FormData(bookingForm);
-        const submitBtn = bookingForm.querySelector('button[type="submit"]');
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="animate-pulse">Booking...</span>';
+    if (bookingForm && successMsg) {
+        bookingForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(bookingForm);
+            const name = formData.get('name');
+            const phone = formData.get('phone');
+            const service = formData.get('service');
+            
+            const submitBtn = bookingForm.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+            
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="animate-pulse">Connecting to WhatsApp...</span>';
 
-        try {
-            // Replace 'YOUR_FORMSPREE_ID' with your actual Formspree ID: https://formspree.io/
-            const response = await fetch('https://formspree.io/f/placeholder', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'Accept': 'application/json'
-                }
-            });
+            // Construct WhatsApp Message
+            const whatsappNumber = "923101497703";
+            const message = `Hello Multan Maintenance!\n\nI would like to book a service.\n*Name:* ${name}\n*Phone:* ${phone}\n*Service Required:* ${service}\n\nPlease confirm my booking.`;
+            const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
 
-            if (response.ok) {
-                // Show Success Message
-                bookingForm.classList.add('hidden');
-                successMsg.classList.remove('hidden');
-                successMsg.classList.add('flex');
-            } else {
-                alert('Oops! There was a problem submitting your form. Please try again.');
+            // Show Success Message in UI
+            bookingForm.classList.add('hidden');
+            successMsg.classList.remove('hidden');
+            successMsg.classList.add('flex');
+            
+            // Clear the input fields
+            bookingForm.reset();
+            
+            // Redirect to WhatsApp
+            window.open(whatsappUrl, '_blank');
+            
+            // Reset button state
+            setTimeout(() => {
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = 'Confirm Booking';
-            }
-        } catch (error) {
-            alert('Something went wrong. Please check your connection or try again.');
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = 'Confirm Booking';
-        }
-    });
+                submitBtn.innerHTML = originalBtnText;
+            }, 2000);
+        });
+    }
 
     // Search Bar Logic
     const searchInput = document.getElementById('search-input');
