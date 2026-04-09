@@ -4,19 +4,39 @@ document.addEventListener('DOMContentLoaded', () => {
     const mobileMenu = document.getElementById('mobile-menu');
     const closeMenuBtn = document.getElementById('close-menu-btn');
     const menuLinks = mobileMenu.querySelectorAll('a');
+    const backdrop = document.getElementById('mobile-menu-backdrop');
 
-    const toggleMenu = () => {
-        mobileMenu.classList.toggle('hidden');
+    const openMenu = () => {
+        mobileMenu.classList.remove('translate-x-full');
+        mobileMenu.classList.add('translate-x-0');
+        if(backdrop) {
+            backdrop.classList.remove('opacity-0', 'pointer-events-none');
+            backdrop.classList.add('opacity-100', 'pointer-events-auto');
+        }
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
     };
 
-    menuBtn.addEventListener('click', toggleMenu);
-    closeMenuBtn.addEventListener('click', toggleMenu);
+    const closeMenu = () => {
+        mobileMenu.classList.remove('translate-x-0');
+        mobileMenu.classList.add('translate-x-full');
+        if(backdrop) {
+            backdrop.classList.remove('opacity-100', 'pointer-events-auto');
+            backdrop.classList.add('opacity-0', 'pointer-events-none');
+        }
+        document.body.style.overflow = '';
+    };
+
+    menuBtn.addEventListener('click', openMenu);
+    closeMenuBtn.addEventListener('click', closeMenu);
+    
+    // Close menu when clicking the backdrop
+    if(backdrop) {
+        backdrop.addEventListener('click', closeMenu);
+    }
     
     // Close menu when a link is clicked
     menuLinks.forEach(link => {
-        link.addEventListener('click', () => {
-            mobileMenu.classList.add('hidden');
-        });
+        link.addEventListener('click', closeMenu);
     });
 
     // Form Submission Logic (WhatsApp Redirect)
